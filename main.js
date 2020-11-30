@@ -50,6 +50,7 @@ if (whitelist.replace(/\r\n|\r|\n/g, "").replace(/\ /g, "")  === "*") {
 //  console.log("All files allowed");
 } else {
   allFilesAllowed = false;
+  fileName = whitelist.split(/\r\n|\r|\n/g);
 }
 
 let blacklist = getBlacklist();
