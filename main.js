@@ -47,7 +47,7 @@ let whitelist = getWhitelist();
 let allFilesAllowed;
 if (whitelist.replace(/\r\n|\r|\n/g, "").replace(/\ /g, "")  === "*") {
   allFilesAllowed = true;
-  console.log("All files allowed");
+//  console.log("All files allowed");
 } else {
   allFilesAllowed = false;
 }
@@ -59,14 +59,14 @@ if (blacklist.replace(/\r\n|\r|\n/g, "").replace(/\ /g, "").length) {
   blacklist = blacklist.split("\n");
   log("flow.log", `Blaclisted files: ${blacklist}`);
 } else {
-  console.log(`No files blacklisted.`);
+ // console.log(`No files blacklisted.`);
   log("flow.log", "No files blacklisted");
 }
 
 
 if (!allFilesAllowed) {
   fileNames = whitelist.split("\n");
-  console.log(`Allowed whitelisted files: ${fileName}`);
+  //console.log(`Allowed whitelisted files: ${fileName}`);
   log("flow.log", `Allowed whitelisted files: ${fileName}`);
 } 
 
@@ -78,8 +78,8 @@ if (blacklisted) {
       }
     }
   }
-  console.log(`ALLOWED: ${fileNames}
-BLOCKED: ${blacklist}`);
+//  console.log(`ALLOWED: ${fileNames}
+//BLOCKED: ${blacklist}`);
   log("flow.log", `ALLOWED: ${fileNames}
 BLOCKED: ${blacklist}`);
 }
@@ -182,7 +182,7 @@ http.createServer( (req, res) => {
   let notResponse = true;
   for(let i in fileNames) {
     if (fileNames[i] == requestedPath) {
-      console.log(`Allowed Access to ${requestedPath}`);
+//      console.log(`Allowed Access to ${requestedPath}`);
       let contentType = getContentType(path.extname(fileNames[i]));
       if (contentType) {
 	staticHeaders["Content-Type"] = contentType;
@@ -191,8 +191,8 @@ http.createServer( (req, res) => {
 	notResponse = false;
       } 
     } else {
-      console.log(`Requested Path: ${requestedPath}
-Resource ${fileNames[i]} not allowed.`);;
+     // console.log(`Requested Path: ${requestedPath}
+//Resource ${fileNames[i]} not allowed.`);;
     }
   }
   if (notResponse) {
