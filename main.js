@@ -198,61 +198,81 @@ let staticHeaders = {
 http.createServer( (req, res) => {
   log("serverStatus.log", `server is listening on port ${PORT}`);
   options.response = false;
+  options.urlError = false;
   let requestedPath = webFolder;
-  if (path.basename(decodeURI(req.url))) {
-    requestedPath +=  decodeURI(req.url);
-  } else {
-    requestedPath += "/index.html";
-  }
-
-  requestedPath = securePath(requestedPath); 
-  let notResponse = true;
-  for(let i in fileNames) {
-    if (fileNames[i] == requestedPath) {
-//      console.log(`Allowed Access to ${requestedPath}`);
-      let contentType = getContentType(path.extname(fileNames[i]));
-      if (contentType) {
-	staticHeaders["Content-Type"] = contentType;
-        res.writeHead(200, staticHeaders);
-        res.end(getFileContent(fileNames[i]));
-	notResponse = false;
-      } 
+  //console.log(req.url);
+  
+  try {
+    path.basename(decodeURI(req.url))
+  } catch {
+    options.urlError = true;
+    if (options.useErrorPages) {
+      staticHeaders["Content-Type"] = "text/html";
+      res.writeHead(400, staticHeaders);
+      res.end(getFileContent("./errorPages/400.html"));
     } else {
-     // console.log(`Requested Path: ${requestedPath}
-//Resource ${fileNames[i]} not allowed.`);;
+      staticHeaders["Content-Type"] = "text/plain";
+      res.writeHead(400, staticHeaders);
+      res.end("400");
     }
   }
 
-  if (notResponse) {
-    if (blacklisted) {
-      for (let i in blacklist) {
-        if (blacklist[i] == requestedPath) {
-	  options.response = 403;
-          if (options.useErrorPages) {
-            staticHeaders["Content-Type"] = "text/html"
-	    res.writeHead(403, staticHeaders);
-	    res.end(getFileContent("./errorPages/403.html"));
-	  } else {
-            staticHeaders["Content-Type"] = "text/plain";
-	    res.writeHead(403, staticHeaders);
-	    res.end("403");
-	  }
+  if (!options.urlError) {
+    if (path.basename(decodeURI(req.url))) {
+      requestedPath += decodeURI(req.url);
+    } else {
+      requestedPath += "/index.html";
+    }
+
+    requestedPath = securePath(requestedPath); 
+    let notResponse = true;
+    for(let i in fileNames) {
+      if (fileNames[i] == requestedPath) {
+  //      console.log(`Allowed Access to ${requestedPath}`);
+        let contentType = getContentType(path.extname(fileNames[i]));
+        if (contentType) {
+    	  staticHeaders["Content-Type"] = contentType;
+          res.writeHead(200, staticHeaders);
+          res.end(getFileContent(fileNames[i]));
+  	  notResponse = false;
+        } 
+      } else {
+       // console.log(`Requested Path: ${requestedPath}
+//Resource ${fileNames[i]} not allowed.`);;
+      }
+    }
+
+    if (notResponse) {
+      if (blacklisted) {
+        for (let i in blacklist) {
+          if (blacklist[i] == requestedPath) {
+  	    options.response = 403;
+            if (options.useErrorPages) {
+              staticHeaders["Content-Type"] = "text/html"
+	      res.writeHead(403, staticHeaders);
+	      res.end(getFileContent("./errorPages/403.html"));
+	    } else {
+              staticHeaders["Content-Type"] = "text/plain";
+	      res.writeHead(403, staticHeaders);
+	      res.end("403");
+	    }
+          }
+        }
+      } 
+
+      if (!options.response) {
+        if (options.useErrorPages) {
+          staticHeaders["Content-Type"] = "text/html";
+          res.writeHead(404, staticHeaders);
+          res.end(getFileContent("./errorPages/404.html"));
+        } else {
+          staticHeaders["Content-Type"] = "text/plain";
+          res.writeHead(404, staticHeaders);
+          res.end("404");
         }
       }
-    } 
-
-    if (!options.response) {
-      if (options.useErrorPages) {
-        staticHeaders["Content-Type"] = "text/html";
-        res.writeHead(404, staticHeaders);
-        res.end(getFileContent("./errorPages/404.html"));
-      } else {
-        staticHeaders["Content-Type"] = "text/plain";
-        res.writeHead(404, staticHeaders);
-        res.end("404");
-      }
     }
-  }	
+  }
 
   log("serverStatus.log", "End request.");
 }).listen(PORT);
