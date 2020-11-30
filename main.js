@@ -185,7 +185,8 @@ http.createServer( (req, res) => {
       console.log(`Allowed Access to ${requestedPath}`);
       let contentType = getContentType(path.extname(fileNames[i]));
       if (contentType) {
-        res.writeHead(200, {"Content-Type": `${contentType}`} + staticHeaders);
+	staticHeaders["Content-Type"] = contentType;
+        res.writeHead(200, staticHeaders);
         res.end(getFileContent(fileNames[i]));
 	notResponse = false;
       } 
@@ -195,7 +196,7 @@ Resource ${fileNames[i]} not allowed.`);;
     }
   }
   if (notResponse) {
-    res.writeHead(404, {"Content-Type": "text/plain"});
+    staticHeaders["Content-Type"] = "text/html";
     res.writeHead(404, staticHeaders);
     res.end("404");
   }	
