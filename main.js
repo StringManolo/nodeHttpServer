@@ -3,7 +3,7 @@ const path = require("path");
 const fs = require("fs");
 const showTime = require("./modules/showTime/showTime.js").showTime;
 
-const PORT = 8001;
+let PORT = 8001;
 const webFolder = "./public";
 const logsFolder = "./logs/";
 
@@ -48,16 +48,17 @@ let useErrorPages = () => {
   console.log("Using error pages");
 };
 
-
+options.useErrorPages = false;
 let generalConfigFile = generalConfig();
 generalConfigFile.forEach( file => {
   if (file) { 
     let [key, value] = file.split("=");
     if (/useErrorPages/gi.test(key) && /yes/gi.test(value)) {
       useErrorPages();
-    } else {
-      options.useErrorPages = false;
+    } else if (/portNumber/gi.test(key)) {
+      PORT = +value.replace(/\ /g, "");
     }
+    
   }
 });
 

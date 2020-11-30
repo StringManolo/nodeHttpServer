@@ -1,0 +1,28 @@
+[0:14:21.768] Getting Whitelist...
+
+[0:14:21.770] Blaclisted files: ./public/javascript/test.js,
+
+[0:14:21.770] ALLOWED: ./public/css/test.css,./public/index.html,./public/javascript/test2.js
+BLOCKED: ./public/javascript/test.js,
+
+[0:21:24.749] Getting Whitelist...
+
+[0:21:24.754] Blaclisted files: ./public/javascript/test.js,
+
+[0:21:24.754] ALLOWED: ./public/css/test.css,./public/index.html,./public/javascript/test2.js
+BLOCKED: ./public/javascript/test.js,
+
+[0:21:36.79] Getting Whitelist...
+
+[0:21:36.85] Blaclisted files: ./public/javascript/test.js,
+
+[0:21:36.85] ALLOWED: ./public/css/test.css,./public/index.html,./public/javascript/test2.js
+BLOCKED: ./public/javascript/test.js,
+
+[0:22:28.7] Getting Whitelist...
+
+[0:22:28.8] Blaclisted files: ./public/javascript/test.js,
+
+[0:22:28.9] ALLOWED: ./public/css/test.css,./public/index.html,./public/javascript/test2.js
+BLOCKED: ./public/javascript/test.js,
+
