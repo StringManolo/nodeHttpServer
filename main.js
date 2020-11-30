@@ -7,6 +7,8 @@ const PORT = 8001;
 const webFolder = "./public";
 const logsFolder = "./logs/";
 
+let options = {};
+
 let log = (fileName, data) => {
   fs.appendFile(logsFolder + fileName, `${showTime()} ${data}
 
@@ -36,6 +38,28 @@ let fileNames = getFiles(webFolder);
 
 
 let getFileContent = filePath => fs.readFileSync(filePath, { encoding: "utf-8" });
+
+let generalConfig = () => getFileContent("./config/general").split(/\r\n|\r|\n/g);
+
+
+
+let useErrorPages = () => {
+  options.useErrorPages = true; 
+  console.log("Using error pages");
+};
+
+
+let generalConfigFile = generalConfig();
+generalConfigFile.forEach( file => {
+  if (file) { 
+    let [key, value] = file.split("=");
+    if (/useErrorPages/gi.test(key) && /yes/gi.test(value)) {
+      useErrorPages();
+    } else {
+      options.useErrorPages = false;
+    }
+  }
+});
 
 
 let getWhitelist = () => getFileContent("./config/files/whitelist");
