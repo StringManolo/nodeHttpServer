@@ -1,8 +1,22 @@
 const http = require("http");
 const path = require("path");
 const fs = require("fs");
+const showTime = require("./modules/showTime/showTime.js").showTime;
 
+const PORT = 8001;
 const webFolder = "./public";
+const logsFolder = "./logs/";
+
+let log = (fileName, data) => {
+  fs.appendFile(logsFolder + fileName, `${showTime()} ${data}
+
+`, err => {
+    if (err) throw err;
+  });
+}
+
+log("serverStatus.log", "Starting server...");
+
 
 let getFiles = (dir, files_) => {
     files_ = files_ || [];
@@ -28,6 +42,7 @@ let getWhitelist = () => getFileContent("./config/files/whitelist");
 
 let getBlacklist = () => getFileContent("./config/files/blacklist");
 
+log("flow.log", "Getting Whitelist...");
 let whitelist = getWhitelist();
 let allFilesAllowed;
 if (whitelist.replace(/\r\n|\r|\n/g, "").replace(/\ /g, "")  === "*") {
@@ -42,14 +57,17 @@ let blacklisted;
 if (blacklist.replace(/\r\n|\r|\n/g, "").replace(/\ /g, "").length) {
   blacklisted = true;
   blacklist = blacklist.split("\n");
+  log("flow.log", `Blaclisted files: ${blacklist}`);
 } else {
   console.log(`No files blacklisted.`);
+  log("flow.log", "No files blacklisted");
 }
 
 
 if (!allFilesAllowed) {
   fileNames = whitelist.split("\n");
-  console.log(`Allowed whitlisted files: ${fileName}`);
+  console.log(`Allowed whitelisted files: ${fileName}`);
+  log("flow.log", `Allowed whitelisted files: ${fileName}`);
 } 
 
 if (blacklisted) {
@@ -62,14 +80,15 @@ if (blacklisted) {
   }
   console.log(`ALLOWED: ${fileNames}
 BLOCKED: ${blacklist}`);
+  log("flow.log", `ALLOWED: ${fileNames}
+BLOCKED: ${blacklist}`);
 }
 
 let securePath = path => {
   return path.replace(/\.\.\//g, "").replace(/\/\//g, ""); 
 };
 
-
-/*let getExtension = url => path.extname(Url.parse(url).pathname); // '.jpg' */
+/* Add extension/blacklist and extension/whitelist */
 
 let getContentType = ext => {
   switch(ext) {
@@ -151,6 +170,7 @@ const staticHeaders = {
 };
 
 http.createServer( (req, res) => {
+  log("serverStatus.log", `server is listening on port ${PORT}`);
   let requestedPath = webFolder;
   if (path.basename(decodeURI(req.url))) {
     requestedPath +=  decodeURI(req.url);
@@ -180,7 +200,8 @@ Resource ${fileNames[i]} not allowed.`);;
     res.end("404");
   }	
 
-}).listen(8001);
+  log("serverStatus.log", "End request.");
+}).listen(PORT);
 
-console.log("http://127.0.0.1:8001");
+console.log(`http://127.0.0.1:${PORT}`);
 

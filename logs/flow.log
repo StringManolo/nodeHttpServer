@@ -1,0 +1,7 @@
+[21:9:26.236] Getting Whitelist...
+
+[21:9:26.268] Blaclisted files: ./public/javascript/test.js,
+
+[21:9:26.270] ALLOWED: ./public/css/test.css,./public/index.html
+BLOCKED: ./public/javascript/test.js,
+
