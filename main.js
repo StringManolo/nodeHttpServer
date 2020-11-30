@@ -185,7 +185,7 @@ let four04 = () => {
 };*/
 
 
-const staticHeaders = {
+let staticHeaders = {
   "server": "Apache",
   "X-Content-Type-Options": "nosniff",
   "X-Frame-Options": "DENY",
@@ -196,6 +196,7 @@ const staticHeaders = {
 
 http.createServer( (req, res) => {
   log("serverStatus.log", `server is listening on port ${PORT}`);
+  options.response = false;
   let requestedPath = webFolder;
   if (path.basename(decodeURI(req.url))) {
     requestedPath +=  decodeURI(req.url);
@@ -220,10 +221,36 @@ http.createServer( (req, res) => {
 //Resource ${fileNames[i]} not allowed.`);;
     }
   }
+
   if (notResponse) {
-    staticHeaders["Content-Type"] = "text/html";
-    res.writeHead(404, staticHeaders);
-    res.end("404");
+    if (blacklisted) {
+      for (let i in blacklist) {
+        if (blacklist[i] == requestedPath) {
+	  options.response = 403;
+          if (options.useErrorPages) {
+            staticHeaders["Content-Type"] = "text/html"
+	    res.writeHead(403, staticHeaders);
+	    res.end(getFileContent("./errorPages/403.html"));
+	  } else {
+            staticHeaders["Content-Type"] = "text/plain";
+	    res.writeHead(403, staticHeaders);
+	    res.end("403");
+	  }
+        }
+      }
+    } 
+
+    if (!options.response) {
+      if (options.useErrorPages) {
+        staticHeaders["Content-Type"] = "text/html";
+        res.writeHead(404, staticHeaders);
+        res.end(getFileContent("./errorPages/404.html"));
+      } else {
+        staticHeaders["Content-Type"] = "text/plain";
+        res.writeHead(404, staticHeaders);
+        res.end("404");
+      }
+    }
   }	
 
   log("serverStatus.log", "End request.");
