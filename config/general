@@ -1,2 +1,6 @@
+address = 127.0.0.1
 portNumber = 8005
 useErrorPages = yes
+useHttps = yes
+useHttp = yes
+redirectHttpToHttps = yes

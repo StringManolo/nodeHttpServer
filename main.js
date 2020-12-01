@@ -1,3 +1,4 @@
+const https = require("https");
 const http = require("http");
 const path = require("path");
 const fs = require("fs");
@@ -6,6 +7,8 @@ const showTime = require("./modules/showTime/showTime.js").showTime;
 let PORT = 8001;
 const webFolder = "./public";
 const logsFolder = "./logs/";
+
+let httpsConfig;
 
 let options = {};
 
@@ -57,6 +60,19 @@ generalConfigFile.forEach( file => {
       useErrorPages();
     } else if (/portNumber/gi.test(key)) {
       PORT = +value.replace(/\ /g, "");
+    } else if (/useHttps/gi.test(key) && /yes/gi.test(value)) {
+      options.https = true;
+console.log("Using https");
+      httpsConfig = {
+        key: fs.readFileSync("./certs/key.pem"),
+	cert: fs.readFileSync("./certs/cert.pem")
+      };
+    } else if (/useHttp/gi.test(key) && /yes/gi.test(value)) {
+      options.http = true;
+    } else if (/redirectHttpToHttps/gi.test(key) && /yes/gi.test(value)) {
+      options.redirHttpToHttps = true;
+    } else if (/address/gi.test(key)) {
+      options.address = value.replace(/\ /g, "");
     }
     
   }
@@ -195,8 +211,9 @@ let staticHeaders = {
   "Content-Security-Policy": "default-src 'none'; img-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
 };
 
-http.createServer( (req, res) => {
-  log("serverStatus.log", `server is listening on port ${PORT}`);
+let serverStart = port => {
+(options.https ? https : http).createServer((options.https ? httpsConfig : null), (req, res) => {
+  log("serverStatus.log", `server is listening on port ${port}`);
   options.response = false;
   options.urlError = false;
   let requestedPath = webFolder;
@@ -275,7 +292,24 @@ http.createServer( (req, res) => {
   }
 
   log("serverStatus.log", "End request.");
-}).listen(PORT);
+}).listen(port);
 
-console.log(`http://127.0.0.1:${PORT}`);
+};
+
+if (options.https && options.http) {
+  
+  serverStart(PORT);
+  console.log(`Server at https://127.0.0.1:${PORT}`);
+  options.https = false;
+  if (!options.redirHttpToHttps) {
+    serverStart(+PORT + 1);
+    console.log(`Server at http://127.0.0.1:${+PORT + 1}`);
+  } else {
+    http.createServer((req, res) => {
+    res.writeHead(301, { "Location": "https://" + (options.address ? options.address : "127.0.0.1") + ":" + PORT });
+      res.end();
+    }).listen(+PORT + 1);
+  }
+  options.https = true;
+}
 
